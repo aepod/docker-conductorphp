@@ -1,4 +1,4 @@
-ARG php_version=7.0
+ARG php_version=7.2
 FROM php:${php_version}-fpm
 
 LABEL maintainer="Ryan Gellis <ryan.gellis@rmgmedia.com>"
@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y \
 # Install PHP Extensions
 RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/lib \
   && docker-php-ext-install bcmath ctype curl dom exif fileinfo gd iconv intl json \
-  && docker-php-ext-install mbstring mcrypt opcache pdo_mysql posix simplexml \
+  && docker-php-ext-install mbstring opcache pdo_mysql posix simplexml \
   && docker-php-ext-install soap tokenizer xml xmlwriter xsl zip 
 
 # xdebug comes from pecl
@@ -58,7 +58,7 @@ WORKDIR /root/
 RUN curl -sS https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz -o ioncube_loader.tgz
 RUN tar -zxvf ioncube_loader.tgz
 WORKDIR /root/ioncube
-RUN cp ioncube_loader_lin_7.0.so /usr/local/lib/php/extensions/no-debug-non-zts-20151012/ioncube_loader_lin_7.0.so
+RUN cp ioncube_loader_lin_7.2.so /usr/local/lib/php/extensions/no-debug-non-zts-20170718/ioncube_loader_lin_7.2.so
 WORKDIR /root/
 RUN rm -rf ioncube*
 
