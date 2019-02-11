@@ -1,4 +1,4 @@
-ARG php_version=7.0
+ARG php_version=7.1
 FROM php:${php_version}-fpm
 
 LABEL maintainer="Ryan Gellis <ryan.gellis@rmgmedia.com>"
@@ -57,7 +57,7 @@ WORKDIR /root/
 RUN curl -sS https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz -o ioncube_loader.tgz
 RUN tar -zxvf ioncube_loader.tgz
 WORKDIR /root/ioncube
-RUN cp ioncube_loader_lin_7.0.so /usr/local/lib/php/extensions/no-debug-non-zts-20151012/ioncube_loader_lin_7.0.so
+RUN cp ioncube_loader_lin_7.1.so /usr/local/lib/php/extensions/no-debug-non-zts-20160303/ioncube_loader_lin_7.1.so
 WORKDIR /root/
 RUN rm -rf ioncube*
 
