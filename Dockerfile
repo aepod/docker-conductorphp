@@ -1,7 +1,7 @@
 ARG php_version=7.2
 FROM php:${php_version}-fpm
 
-LABEL maintainer="Ryan Gellis <ryan.gellis@rmgmedia.com>"
+LABEL maintainer="Mathew Beane <mathew.beane@rmgmedia.com>"
 
 # Install Base Packages
 RUN apt-get update && apt-get install -y \
@@ -17,14 +17,19 @@ RUN apt-get update && apt-get install -y \
   libxml2-dev \
   libxslt-dev \
   mydumper \
+  nano \
   openssh-client \
+  telnet \
+  unzip \
+  vim \
+  zip \
   zlib1g-dev
   
 # Install PHP Extensions
 RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/lib \
   && docker-php-ext-install bcmath ctype curl dom exif fileinfo gd iconv intl json \
-  && docker-php-ext-install mbstring opcache pdo_mysql posix simplexml \
-  && docker-php-ext-install soap tokenizer xml xmlwriter xsl zip 
+  && docker-php-ext-install mbstring opcache pdo_mysql soap xsl zip
+
 
 # xdebug comes from pecl
 RUN pecl install xdebug-2.6.0
@@ -64,6 +69,7 @@ RUN rm -rf ioncube*
 
 # Setup webuser
 RUN useradd -d /home/webuser -m -u 800 webuser
+RUN chown webuser /var/www
 
 # Switch to Webuser
 USER webuser
