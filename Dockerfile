@@ -1,6 +1,8 @@
 ARG php_version=7.2
 FROM php:${php_version}-fpm
 
+ENV PHP_EXTRA_CONFIGURE_ARGS --enable-fpm --with-fpm-user=webuser --with-fpm-group=nginx --disable-cgi
+
 LABEL maintainer="Mathew Beane <mathew.beane@rmgmedia.com>"
 
 # Install Base Packages
@@ -69,16 +71,15 @@ WORKDIR /root/
 RUN rm -rf ioncube*
 
 # Setup webuser
-RUN useradd -d /home/webuser -m -u 800 webuser
-RUN chown webuser /var/www
+RUN groupadd -g 800 nginx
+RUN useradd -d /home/webuser -m -u 1000 -g 800 webuser
+RUN chown webuser. /var/www
 
-# Switch to Webuser
-USER webuser
-WORKDIR /home/webuser
 
 # Install composer
 RUN curl -sS https://getcomposer.org/installer -o composer-setup.php && php composer-setup.php --install-dir=/home/webuser/ --filename=composer
 RUN rm -f composer-setup.php
+RUN chown webuser. /home/webuser/composer
 
 RUN echo "alias conductor=/home/webuser/conductor/vendor/bin/conductor" >> /home/webuser/.bashrc
 RUN echo "alias composer=/home/webuser/composer" >> /home/webuser/.bashrc
