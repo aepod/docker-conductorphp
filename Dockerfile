@@ -45,7 +45,7 @@ RUN docker-php-ext-install zlib
 COPY config/php.ini /usr/local/etc/php/php.ini
   
 # Node Setup
-RUN curl -sS https://deb.nodesource.com/setup_10.x | bash
+RUN curl -sS https://deb.nodesource.com/setup_6.x | bash
 RUN apt-get install -y nodejs
 
 # Gulp setup
