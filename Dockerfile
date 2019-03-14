@@ -1,7 +1,9 @@
 ARG php_version=7.0
 FROM php:${php_version}-fpm
 
-LABEL maintainer="Ryan Gellis <ryan.gellis@rmgmedia.com>"
+ENV PHP_EXTRA_CONFIGURE_ARGS --enable-fpm --with-fpm-user=webuser --with-fpm-group=nginx --disable-cgi
+
+LABEL maintainer="Mathew Beane <mathew.beane@rmgmedia.com>"
 
 # Install Base Packages
 RUN apt-get update && apt-get install -y \
@@ -16,15 +18,19 @@ RUN apt-get update && apt-get install -y \
   libpng-dev \
   libxml2-dev \
   libxslt-dev \
+  mysql-client \
   mydumper \
+  nano \
   openssh-client \
-  zlib1g-dev
+  telnet \
+  unzip \
+  vim \
+  zip \
+  zlib1g-dev && rm -rf /var/lib/apt/lists/*
   
 # Install PHP Extensions
 RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/lib \
-  && docker-php-ext-install bcmath ctype curl dom exif fileinfo gd iconv intl json \
-  && docker-php-ext-install mbstring mcrypt opcache pdo_mysql posix simplexml \
-  && docker-php-ext-install soap tokenizer xml xmlwriter xsl zip 
+  && docker-php-ext-install bcmath ctype curl dom exif fileinfo gd iconv intl json mbstring mcrypt opcache pdo_mysql  soap xsl zip
 
 # xdebug comes from pecl
 RUN pecl install xdebug-2.6.0
@@ -39,19 +45,20 @@ RUN docker-php-ext-install zlib
 COPY config/php.ini /usr/local/etc/php/php.ini
   
 # Node Setup
-RUN curl -sS https://deb.nodesource.com/setup_10.x | bash
-RUN apt-get install -y nodejs
+RUN curl -sS https://deb.nodesource.com/setup_6.x | bash
+RUN apt-get update && apt-get install -y nodejs
 
-# Gulp setup
-RUN npm install --global gulp-cli
+# Gulp setup - running it twice because once is not enough to actually install it!
+RUN npm install --global gulp-cli gulp-util && npm install --global gulp-cli gulp-util
+
+# Broke sass so now fix it
+RUN npm rebuild node-sass
 
 # Yarn Setup
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
 RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-RUN apt-get update && apt-get install --no-install-recommends yarn  
+RUN apt-get update && apt-get install --no-install-recommends yarn  && rm -rf /var/lib/apt/lists/*
   
-# Cleanup
-RUN rm -rf /var/lib/apt/lists/*
 
 # Ioncube what a pain
 WORKDIR /root/
@@ -63,15 +70,14 @@ WORKDIR /root/
 RUN rm -rf ioncube*
 
 # Setup webuser
-RUN useradd -d /home/webuser -m -u 800 webuser
-
-# Switch to Webuser
-USER webuser
-WORKDIR /home/webuser
+RUN groupadd -g 800 nginx
+RUN useradd -d /home/webuser -m -u 1000 -g 800 webuser
+RUN chown webuser /var/www
 
 # Install composer
 RUN curl -sS https://getcomposer.org/installer -o composer-setup.php && php composer-setup.php --install-dir=/home/webuser/ --filename=composer
 RUN rm -f composer-setup.php
+RUN chown webuser /home/webuser/composer
 
 RUN echo "alias conductor=/home/webuser/conductor/vendor/bin/conductor" >> /home/webuser/.bashrc
 RUN echo "alias composer=/home/webuser/composer" >> /home/webuser/.bashrc
