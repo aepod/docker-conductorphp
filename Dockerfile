@@ -1,4 +1,4 @@
-ARG php_version=7.0
+ARG php_version=5.6
 FROM php:${php_version}-fpm
 
 ENV PHP_EXTRA_CONFIGURE_ARGS --enable-fpm --with-fpm-user=webuser --with-fpm-group=nginx --disable-cgi
@@ -30,55 +30,36 @@ RUN apt-get update && apt-get install -y \
   
 # Install PHP Extensions
 RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/lib \
-  && docker-php-ext-install bcmath ctype curl dom exif fileinfo gd iconv intl json mbstring mcrypt opcache pdo_mysql  soap xsl zip
+  && docker-php-ext-install bcmath ctype curl dom exif fileinfo gd iconv intl json mbstring \
+     mcrypt opcache pdo_mysql soap xsl zip
 
 # xdebug comes from pecl
-RUN pecl install xdebug-2.6.0
+RUN pecl install xdebug-2.5.3
 
 # zlib has a broken bit - workaround https://github.com/docker-library/php/issues/233#issuecomment-288727629
 RUN docker-php-ext-install zlib; exit 0
 RUN cp /usr/src/php/ext/zlib/config0.m4 /usr/src/php/ext/zlib/config.m4
 RUN docker-php-ext-install zlib
 
+# Ioncube what a pain
+WORKDIR /root/
+RUN curl -sS https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz -o ioncube_loader.tgz \
+ && tar -zxvf ioncube_loader.tgz \
+ && cp /root/ioncube/ioncube_loader_lin_5.6.so /usr/local/lib/php/extensions/no-debug-non-zts-20131226/ioncube_loader_lin_5.6.so \
+ && rm -rf ioncube*
 
 # Configure PHP
 COPY config/php.ini /usr/local/etc/php/php.ini
   
-# Node Setup
-RUN curl -sS https://deb.nodesource.com/setup_6.x | bash
-RUN apt-get update && apt-get install -y nodejs
-
-# Gulp setup - running it twice because once is not enough to actually install it!
-RUN npm install --global gulp-cli gulp-util && npm install --global gulp-cli gulp-util
-
-# Broke sass so now fix it
-RUN npm rebuild node-sass
-
-# Yarn Setup
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-RUN apt-get update && apt-get install --no-install-recommends yarn  && rm -rf /var/lib/apt/lists/*
-  
-
-# Ioncube what a pain
-WORKDIR /root/
-RUN curl -sS https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz -o ioncube_loader.tgz
-RUN tar -zxvf ioncube_loader.tgz
-WORKDIR /root/ioncube
-RUN cp ioncube_loader_lin_7.0.so /usr/local/lib/php/extensions/no-debug-non-zts-20151012/ioncube_loader_lin_7.0.so
-WORKDIR /root/
-RUN rm -rf ioncube*
-
 # Setup webuser
 RUN groupadd -g 800 nginx
 RUN useradd -d /home/webuser -m -u 1000 -g 800 webuser
 RUN chown webuser /var/www
+  
 
-# Install composer
-RUN curl -sS https://getcomposer.org/installer -o composer-setup.php && php composer-setup.php --install-dir=/home/webuser/ --filename=composer
-RUN rm -f composer-setup.php
-RUN chown webuser /home/webuser/composer
 
-RUN echo "alias conductor=/home/webuser/conductor/vendor/bin/conductor" >> /home/webuser/.bashrc
-RUN echo "alias composer=/home/webuser/composer" >> /home/webuser/.bashrc
+
+
+
+
 
