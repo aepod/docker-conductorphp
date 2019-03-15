@@ -22,11 +22,14 @@ RUN apt-get update && apt-get install -y \
   mydumper \
   nano \
   openssh-client \
+  patch \
   telnet \
   unzip \
   vim \
   zip \
-  zlib1g-dev
+  zlib1g-dev \
+  && rm -rf /var/lib/apt/lists/* \
+  && rm /var/log/dpkg.log
   
 # Install PHP Extensions
 RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/lib \
@@ -54,11 +57,8 @@ RUN npm install --global gulp-cli
 # Yarn Setup
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
 RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-RUN apt-get update && apt-get install --no-install-recommends yarn  
+RUN apt-get update && apt-get install --no-install-recommends yarn && rm -rf /var/lib/apt/lists/* && rm /var/log/dpkg.log
   
-# Cleanup
-RUN rm -rf /var/lib/apt/lists/*
-
 # Ioncube what a pain
 WORKDIR /root/
 RUN curl -sS https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz -o ioncube_loader.tgz
