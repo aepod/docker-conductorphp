@@ -9,8 +9,11 @@ LABEL maintainer="Mathew Beane <mathew.beane@rmgmedia.com>"
 RUN apt-get update && apt-get install -y \
   apt-transport-https \
   apt-utils \
+  bash-completion \
+  ctags \
   git \
   gnupg \
+  htop \
   libcurl3-dev \
   libfreetype6-dev \
   libjpeg-dev \
@@ -23,6 +26,7 @@ RUN apt-get update && apt-get install -y \
   nano \
   openssh-client \
   patch \
+  tig \
   telnet \
   unzip \
   vim \
