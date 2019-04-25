@@ -9,8 +9,11 @@ LABEL maintainer="Mathew Beane <mathew.beane@rmgmedia.com>"
 RUN apt-get update && apt-get install -y \
   apt-transport-https \
   apt-utils \
+  bash-completion \
+  ctags \
   git \
   gnupg \
+  htop \
   libcurl3-dev \
   libfreetype6-dev \
   libjpeg-dev \
@@ -22,11 +25,15 @@ RUN apt-get update && apt-get install -y \
   mydumper \
   nano \
   openssh-client \
+  patch \
+  tig \
   telnet \
   unzip \
   vim \
   zip \
-  zlib1g-dev && rm -rf /var/lib/apt/lists/*
+  zlib1g-dev \
+  && rm -rf /var/lib/apt/lists/* \
+  && rm /var/log/dpkg.log
   
 # Install PHP Extensions
 RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/lib \
